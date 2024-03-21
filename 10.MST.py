@@ -1,36 +1,36 @@
-class Graph:
-    def __init__(self, vertices):
-        self.V = vertices
-        self.graph = [[] for _ in range(vertices)]
+import heapq
 
-    def add_edge(self, u, v, weight):
-        self.graph[u].append((v, weight))
-        self.graph[v].append((u, weight))
+def prim(graph, start):
+    visited = set()
+    min_spanning_tree = []
+    heap = [(0, start)]
 
-    def prim_mst(self):
-        mst = [False] * self.V
-        key = [float('inf')] * self.V
-        parent = [None] * self.V
-        key[0] = 0
-        parent[0] = -1
-        for _ in range(self.V):
-            u = min((key[i], i) for i in range(self.V) if not mst[i])[1]
-            mst[u] = True
-            for v, weight in self.graph[u]:
-                if not mst[v] and weight < key[v]:
-                    key[v] = weight
-                    parent[v] = u
-        print("Edges in MST:")
-        for i in range(1, self.V):
-            print(f"{parent[i]} - {i} (Weight: {key[i]})")
+    while heap:
+        weight, current_vertex = heapq.heappop(heap)
+        if current_vertex not in visited:
+            visited.add(current_vertex)
+            min_spanning_tree.append((weight, current_vertex))
 
-# Example usage
-g = Graph(5)
-g.add_edge(0, 1, 2)
-g.add_edge(0, 3, 6)
-g.add_edge(1, 2, 3)
-g.add_edge(1, 3, 8)
-g.add_edge(1, 4, 5)
-g.add_edge(2, 4, 7)
+            for neighbor, neighbor_weight in graph[current_vertex]:
+                if neighbor not in visited:
+                    heapq.heappush(heap, (neighbor_weight, neighbor))
 
-g.prim_mst()
+    return min_spanning_tree
+
+# Example usage:
+def main():
+    graph = {}
+    num_outposts = int(input("Enter the number of outposts: "))
+    for i in range(num_outposts):
+        outpost_name = input(f"Enter name of outpost {i+1}: ")
+        connections = int(input(f"Enter number of connections for outpost {outpost_name}: "))
+        graph[outpost_name] = []
+        for _ in range(connections):
+            neighbor, weight = input(f"Enter neighbor outpost name and weight for outpost {outpost_name}: ").split()
+            graph[outpost_name].append((neighbor, int(weight)))
+
+    start_vertex = input("Enter the starting outpost: ")
+    print(prim(graph, start_vertex))
+
+if _name_ == "_main_":
+    main()
